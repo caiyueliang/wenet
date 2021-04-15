@@ -27,7 +27,7 @@ from tensorboardX import SummaryWriter
 from torch.utils.data import DataLoader
 
 from wenet.dataset.dataset import AudioDataset, CollateFunc
-from wenet.transformer.asr_model import init_asr_model
+from wenet.transformer.asr_model import init_asr_model, update_model_vocab_size
 from wenet.utils.checkpoint import load_checkpoint, save_checkpoint
 from wenet.utils.executor import Executor
 from wenet.utils.scheduler import WarmupLR
@@ -76,6 +76,7 @@ if __name__ == '__main__':
                         default=False,
                         help='Use pinned memory buffers used for reading')
     parser.add_argument('--cmvn', default=None, help='global cmvn file')
+    parser.add_argument('--old_vocab_size', type=int, default=None, help='old_vocab_size')
 
     args = parser.parse_args()
 
@@ -158,7 +159,7 @@ if __name__ == '__main__':
             fout.write(data)
 
     # Init asr model from configs, 从配置中初始化语音识别模型
-    model = init_asr_model(configs)
+    model = init_asr_model(configs, args.old_vocab_size)
     logging.info("[model] {}".format(model))
 
     # !!!IMPORTANT!!!
@@ -171,7 +172,8 @@ if __name__ == '__main__':
 
     # If specify checkpoint, load some info from checkpoint, 如果指定checkpoint，则从checkpoint加载一些信息
     if args.checkpoint is not None:
-        infos = load_checkpoint(model, args.checkpoint)                         # 加载checkpoint
+        infos = load_checkpoint(model, args.checkpoint)                 # 加载checkpoint
+        model = update_model_vocab_size(model=model, configs=configs)   # 更新output_dim纬度
     else:
         infos = {}
     start_epoch = infos.get('epoch', -1) + 1        # start_epoch,cv_loss,step等数据,是从checkpoint读取到

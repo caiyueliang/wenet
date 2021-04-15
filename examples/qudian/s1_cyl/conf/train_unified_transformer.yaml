@@ -1,6 +1,6 @@
 # network architecture
 # encoder related
-encoder: conformer
+encoder: transformer
 encoder_conf:
     output_size: 256    # dimension of attention
     attention_heads: 4
@@ -9,13 +9,10 @@ encoder_conf:
     dropout_rate: 0.1
     positional_dropout_rate: 0.1
     attention_dropout_rate: 0.0
-    input_layer: conv2d # encoder input type, you can chose conv2d, conv2d6 and conv2d8
+    input_layer: conv2d # encoder architecture type
     normalize_before: true
-    cnn_module_kernel: 15
-    use_cnn_module: True
-    activation_type: 'swish'
-    pos_enc_layer_type: 'rel_pos'
-    selfattention_layer_type: 'rel_selfattn'
+    use_dynamic_chunk: true
+    use_dynamic_left_chunk: false
 
 # decoder related
 decoder: transformer
@@ -40,23 +37,23 @@ raw_wav: true
 # feature extraction
 collate_conf:
     # waveform level config
-    wav_distortion_conf:            # 音频变形的配置
-        wav_dither: 0.1             # -- 音频抖动
-        wav_distortion_rate: 0.0    # -- 波形失真率
+    wav_distortion_conf:
+        wav_dither: 0.0
+        wav_distortion_rate: 0.0
         distortion_methods: []
-    speed_perturb: true             # 速度扰动
-    feature_extraction_conf:        # 特征抽取相关配置
-        feature_type: 'fbank'       # -- 特征类型: fbank
-        mel_bins: 80                # -- mel特征纬度
+    speed_perturb: false
+    feature_extraction_conf:
+        feature_type: 'fbank'
+        mel_bins: 80
         frame_shift: 10
         frame_length: 25
-        using_pitch: false          # -- 使用音调特征？
+        using_pitch: false
     # spec level config
     # spec_swap: false
-    feature_dither: 0.0             # 特征抖动, add dither [-feature_dither,feature_dither] on fbank feature
-    spec_aug: true                  # 频谱增强的开关
-    spec_aug_conf:                  # 频谱增强的配置
-        warp_for_time: False        # -- 扭曲时间
+    feature_dither: 0.0 # add dither [-feature_dither,feature_dither] on fbank feature
+    spec_aug: true
+    spec_aug_conf:
+        warp_for_time: False
         num_t_mask: 2
         num_f_mask: 2
         max_t: 50
@@ -65,22 +62,22 @@ collate_conf:
 
 
 # dataset related
-dataset_conf:                       # 数据集加载的配置
+dataset_conf:
     max_length: 40960
     min_length: 0
     batch_type: 'static' # static or dynamic
     # the size of batch_size should be set according to your gpu memory size, here we used 2080ti gpu whose memory size is 11GB
-    batch_size: 12
+    batch_size: 16
     sort: true
 
 grad_clip: 5
-accum_grad: 4
-max_epoch: 20
+accum_grad: 1
+max_epoch: 180
 log_interval: 100
 
 optim: adam
 optim_conf:
     lr: 0.002
-scheduler: warmuplr                 # lr最初使用较小的学习率，并很快切换到大学习率而后进行常见的decay. pytorch v1.1.0+ required
+scheduler: warmuplr     # pytorch v1.1.0+ required
 scheduler_conf:
     warmup_steps: 25000

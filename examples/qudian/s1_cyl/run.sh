@@ -5,7 +5,7 @@
 
 # Use this to control how many gpu you use, It's 1-gpu training if you specify
 # just 1gpu, otherwise it's is multiple gpu training based on DDP in pytorch
-export CUDA_VISIBLE_DEVICES="3,4,5"
+export CUDA_VISIBLE_DEVICES="6"
 # The NCCL_SOCKET_IFNAME variable specifies which IP interface to use for nccl
 # communication. More details can be found in
 # https://docs.nvidia.com/deeplearning/nccl/user-guide/docs/env.html
@@ -39,6 +39,7 @@ train_config=conf/train_conformer.yaml
 cmvn=true
 dir=exp/conformer
 checkpoint=
+old_vocab_size=
 
 # use average_checkpoint will get better result
 average_checkpoint=true
@@ -153,6 +154,7 @@ if [ ${stage} -le 4 ] && [ ${stop_stage} -ge 4 ]; then
             --ddp.rank ${rank} \
             --ddp.dist_backend ${dist_backend} \
             --num_workers 1 \
+            ${old_vocab_size:+--old_vocab_size $old_vocab_size} \
             ${cmvn_opts} \
             --pin_memory
     } &

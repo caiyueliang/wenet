@@ -84,6 +84,25 @@ class TransformerDecoder(torch.nn.Module):
             ) for _ in range(num_blocks)
         ])
 
+    def update_vocab_size(self,
+                          vocab_size: int,
+                          encoder_output_size: int,
+                          positional_dropout_rate: float = 0.1,
+                          input_layer: str = "embed"):
+        attention_dim = encoder_output_size
+
+        if input_layer == "embed":
+            self.embed = torch.nn.Sequential(
+                torch.nn.Embedding(vocab_size, attention_dim),
+                PositionalEncoding(attention_dim, positional_dropout_rate),
+            )
+        else:
+            raise ValueError(
+                f"only 'embed' is supported: {input_layer}")
+
+        self.output_layer = torch.nn.Linear(attention_dim, vocab_size)
+        return
+
     def forward(
         self,
         memory: torch.Tensor,

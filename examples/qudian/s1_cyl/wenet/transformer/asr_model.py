@@ -70,7 +70,6 @@ class ASRModel(torch.nn.Module):
 
     def update_vocab_size(self,
                           vocab_size: int,
-                          decoder: TransformerDecoder,
                           ctc: CTC,
                           ctc_weight: float = 0.5,
                           ignore_id: int = IGNORE_ID,
@@ -82,7 +81,7 @@ class ASRModel(torch.nn.Module):
         self.ignore_id = ignore_id
         self.ctc_weight = ctc_weight
 
-        self.decoder = decoder
+        self.decoder.update_vocab_size(self.vocab_size, self.encoder.output_size())
         self.ctc = ctc
         self.criterion_att = LabelSmoothingLoss(
             size=vocab_size,
@@ -672,35 +671,33 @@ def init_asr_model(configs, old_vocab_size=None):
 
 
 def update_model_vocab_size(model, configs):
-    input_dim = configs['input_dim']
+    # input_dim = configs['input_dim']
     vocab_size = configs['output_dim']
 
     if vocab_size != model.get_vocab_size():
         print("[update_model_vocab_size] old_vocab_size:{} != new_vocab_size:{}, update model.".format(
             model.get_vocab_size(), vocab_size))
 
-        if configs['cmvn_file'] is not None:
-            mean, istd = load_cmvn(configs['cmvn_file'], configs['is_json_cmvn'])
-            global_cmvn = GlobalCMVN(
-                torch.from_numpy(mean).float(),
-                torch.from_numpy(istd).float())
-        else:
-            global_cmvn = None
+        # if configs['cmvn_file'] is not None:
+        #     mean, istd = load_cmvn(configs['cmvn_file'], configs['is_json_cmvn'])
+        #     global_cmvn = GlobalCMVN(
+        #         torch.from_numpy(mean).float(),
+        #         torch.from_numpy(istd).float())
+        # else:
+        #     global_cmvn = None
 
-        encoder_type = configs.get('encoder', 'conformer')
-        if encoder_type == 'conformer':
-            encoder = ConformerEncoder(input_dim, global_cmvn=global_cmvn, **configs['encoder_conf'])
-        else:
-            encoder = TransformerEncoder(input_dim, global_cmvn=global_cmvn, **configs['encoder_conf'])
+        # encoder_type = configs.get('encoder', 'conformer')
+        # if encoder_type == 'conformer':
+        #     encoder = ConformerEncoder(input_dim, global_cmvn=global_cmvn, **configs['encoder_conf'])
+        # else:
+        #     encoder = TransformerEncoder(input_dim, global_cmvn=global_cmvn, **configs['encoder_conf'])
 
-        decoder = TransformerDecoder(vocab_size, encoder.output_size(), **configs['decoder_conf'])
-        ctc = CTC(vocab_size, encoder.output_size())
+        # decoder = TransformerDecoder(vocab_size, encoder.output_size(), **configs['decoder_conf'])
+        ctc = CTC(vocab_size, model.encoder.output_size())
         model.update_vocab_size(
             vocab_size=vocab_size,
-            decoder=decoder,
             ctc=ctc,
             **configs['model_conf'])
-
     else:
         print("old_vocab_size:{} == new_vocab_size:{}, not update.".format(model.get_vocab_size(), vocab_size))
 

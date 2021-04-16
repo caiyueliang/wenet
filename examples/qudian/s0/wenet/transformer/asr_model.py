@@ -72,7 +72,7 @@ class ASRModel(torch.nn.Module):
         text: torch.Tensor,
         text_lengths: torch.Tensor,
     ) -> Tuple[Optional[torch.Tensor], Optional[torch.Tensor], Optional[torch.Tensor]]:
-        """Frontend + Encoder + Decoder + Calc loss
+        """Frontend + Encoder + Decoder + Calc loss  前端 + 编码器 + 解码器 + 计算损耗
 
         Args:
             speech: (Batch, Length, ...)
@@ -81,22 +81,21 @@ class ASRModel(torch.nn.Module):
             text_lengths: (Batch,)
         """
         assert text_lengths.dim() == 1, text_lengths.shape
-        # Check that batch_size is unified
+        # Check that batch_size is unified, 检查批量大小是否统一
         assert (speech.shape[0] == speech_lengths.shape[0] == text.shape[0] ==
                 text_lengths.shape[0]), (speech.shape, speech_lengths.shape,
                                          text.shape, text_lengths.shape)
-        # 1. Encoder
+        # 1. Encoder, 编码器
         encoder_out, encoder_mask = self.encoder(speech, speech_lengths)
         encoder_out_lens = encoder_mask.squeeze(1).sum(1)
 
-        # 2a. Attention-decoder branch
+        # 2a. Attention-decoder branch, 计算att loss
         if self.ctc_weight != 1.0:
-            loss_att, acc_att = self._calc_att_loss(encoder_out, encoder_mask,
-                                                    text, text_lengths)
+            loss_att, acc_att = self._calc_att_loss(encoder_out, encoder_mask, text, text_lengths)
         else:
             loss_att = None
 
-        # 2b. CTC branch
+        # 2b. CTC branch, 计算ctc loss
         if self.ctc_weight != 0.0:
             loss_ctc = self.ctc(encoder_out, encoder_out_lens, text, text_lengths)
         else:
@@ -107,8 +106,8 @@ class ASRModel(torch.nn.Module):
         elif loss_att is None:
             loss = loss_ctc
         else:
-            loss = self.ctc_weight * loss_ctc + (1 -
-                                                 self.ctc_weight) * loss_att
+            # loss是ctc和att加权得到的
+            loss = self.ctc_weight * loss_ctc + (1 - self.ctc_weight) * loss_att
         return loss, loss_att, loss_ctc
 
     def _calc_att_loss(
@@ -123,8 +122,7 @@ class ASRModel(torch.nn.Module):
         ys_in_lens = ys_pad_lens + 1
 
         # 1. Forward decoder
-        decoder_out, _ = self.decoder(encoder_out, encoder_mask, ys_in_pad,
-                                      ys_in_lens)
+        decoder_out, _ = self.decoder(encoder_out, encoder_mask, ys_in_pad, ys_in_lens)
 
         # 2. Compute attention loss
         loss_att = self.criterion_att(decoder_out, ys_out_pad)

@@ -50,7 +50,7 @@ collate_conf:
         mel_bins: 80                # -- mel特征纬度
         frame_shift: 10
         frame_length: 25
-        using_pitch: false          # -- 使用音调特征？
+        using_pitch: false          # -- 使用音调特征
     # spec level config
     # spec_swap: false
     feature_dither: 0.0             # 特征抖动, add dither [-feature_dither,feature_dither] on fbank feature

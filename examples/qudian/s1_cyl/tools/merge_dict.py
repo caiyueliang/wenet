@@ -46,7 +46,7 @@ def save_dict(output_file, data_dict):
 def parse_argvs():
     parser = argparse.ArgumentParser(description='ASR data prepare')
     parser.add_argument("--src_dict", help="src_dict path", type=str, default='/DATA/disk1/caiyueliang/wenet/models/20210204_conformer_exp/words.txt')
-    parser.add_argument("--append_dict", help="append_dict path", type=str, default='/DATA/disk1/caiyueliang/wenet/examples/qudian/s1_cyl/data/dict/lang_char.txt')
+    parser.add_argument("--append_dict", help="append_dict path", type=str, default='/DATA/disk1/caiyueliang/wenet/examples/qudian/s1_cyl/data/dict/lang_char_3857.txt')
     parser.add_argument("--output_dict", help="output_dict path", type=str, default='./new_words.txt')
     args = parser.parse_args()
     logging.warning(args)

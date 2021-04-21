@@ -80,16 +80,31 @@ if [ ${stage} -le 1 ] && [ ${stop_stage} -ge 1 ]; then
 
 fi
 
+#if [ ${stage} -le 2 ] && [ ${stop_stage} -ge 2 ]; then
+#    # Make train dict
+#    echo "Make a dictionary"
+#    mkdir -p $(dirname ${dict})
+#    echo "<blank> 0" > ${dict} # 0 will be used for "blank" in CTC
+#    echo "<unk> 1" >> ${dict} # <unk> must be 1
+#    tools/text2token.py -s 1 -n 1 data/train/text | cut -f 2- -d" " | tr " " "\n" \
+#        | sort | uniq | grep -a -v -e '^\s*$' | awk '{print $0 " " NR+1}' >> ${dict}
+#    num_token=$(cat ${dict} | wc -l)
+#    echo "<sos/eos> $num_token" >> ${dict} # <eos>
+#fi
 if [ ${stage} -le 2 ] && [ ${stop_stage} -ge 2 ]; then
     # Make train dict
     echo "Make a dictionary"
     mkdir -p $(dirname $dict)
     echo "<blank> 0" > ${dict} # 0 will be used for "blank" in CTC
     echo "<unk> 1" >> ${dict} # <unk> must be 1
-    tools/text2token.py -s 1 -n 1 data/train/text | cut -f 2- -d" " | tr " " "\n" \
+    # TODO: cyl
+    cp data/train/text data/train/text.tmp
+    sed -i "s/<unk>//g" data/train/text.tmp
+    tools/text2token.py -s 1 -n 1 data/train/text.tmp | cut -f 2- -d" " | tr " " "\n" \
         | sort | uniq | grep -a -v -e '^\s*$' | awk '{print $0 " " NR+1}' >> ${dict}
-    num_token=$(cat $dict | wc -l)
-    echo "<sos/eos> $num_token" >> $dict # <eos>
+    num_token=$(cat ${dict} | wc -l)
+    echo "<sos/eos> $num_token" >> ${dict} # <eos>
+    rm data/train/text.tmp
 fi
 
 if [ ${stage} -le 3 ] && [ ${stop_stage} -ge 3 ]; then
@@ -98,16 +113,16 @@ if [ ${stage} -le 3 ] && [ ${stop_stage} -ge 3 ]; then
     echo "Prepare data, prepare requried format"
     for x in dev test ${train_set}; do
         tools/format_data.sh --nj ${nj} \
-            --feat-type wav --feat $feat_dir/$x/wav.scp \
-            $feat_dir/$x ${dict} > $feat_dir/$x/format.data.tmp
+            --feat-type wav --feat ${feat_dir}/${x}/wav.scp \
+            ${feat_dir}/${x} ${dict} > ${feat_dir}/${x}/format.data.tmp
 
         tools/remove_longshortdata.py \
             --min_input_len 0.5 \
             --max_input_len 20 \
             --max_output_len 400 \
             --max_output_input_ratio 10.0 \
-            --data_file $feat_dir/$x/format.data.tmp \
-            --output_data_file $feat_dir/$x/format.data
+            --data_file ${feat_dir}/${x}/format.data.tmp \
+            --output_data_file ${feat_dir}/${x}/format.data
     done
 fi
 
@@ -181,7 +196,8 @@ if [ ${stage} -le 5 ] && [ ${stop_stage} -ge 5 ]; then
         mkdir -p ${test_dir}
         gpu_id=$(echo ${CUDA_VISIBLE_DEVICES} | cut -d',' -f$[1])
         echo "[test] mode: ${mode}, use gpu_id: ${gpu_id}"
-        python wenet/bin/recognize.py --gpu ${gpu_id} \
+        # python wenet/bin/recognize.py --gpu ${gpu_id} \
+        python wenet/bin/recognize.py --gpu 7 \
             --mode ${mode} \
             --config ${dir}/train.yaml \
             --test_data ${feat_dir}/test/format.data \

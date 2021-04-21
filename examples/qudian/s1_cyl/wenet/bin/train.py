@@ -105,7 +105,7 @@ if __name__ == '__main__':
         cv_collate_conf['feature_dither'] = 0.0                                     # 特征抖动
         cv_collate_conf['speed_perturb'] = False                                    # 速度扰动
         cv_collate_conf['wav_distortion_conf']['wav_distortion_rate'] = 0           # 波形失真率
-        # cv_collate_conf['wav_distortion_conf']['wav_dither'] = 0.0                # 音频抖动
+        cv_collate_conf['wav_distortion_conf']['wav_dither'] = 0.0                  # 音频抖动
 
     cv_collate_func = CollateFunc(**cv_collate_conf, raw_wav=raw_wav)
 
@@ -211,6 +211,8 @@ if __name__ == '__main__':
     # Start training loop
     executor.step = step
     scheduler.set_step(step)
+    logging.info('[train] start_epoch: {}, num_epochs: {}'.format(start_epoch, num_epochs))
+
     for epoch in range(start_epoch, num_epochs):
         if distributed:
             train_sampler.set_epoch(epoch)

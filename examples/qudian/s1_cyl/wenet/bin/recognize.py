@@ -19,6 +19,7 @@ import copy
 import logging
 import os
 import sys
+import time
 
 import torch
 import yaml
@@ -102,6 +103,8 @@ if __name__ == '__main__':
     test_collate_conf['speed_perturb'] = False
     if raw_wav:
         test_collate_conf['wav_distortion_conf']['wav_distortion_rate'] = 0
+        test_collate_conf['wav_distortion_conf']['wav_dither'] = 0.0          # 音频抖动
+
     test_collate_func = CollateFunc(**test_collate_conf,
                                     raw_wav=raw_wav)
     dataset_conf = configs.get('dataset_conf', {})
@@ -129,11 +132,14 @@ if __name__ == '__main__':
 
     load_checkpoint(model, args.checkpoint)
     use_cuda = args.gpu >= 0 and torch.cuda.is_available()
+    logging.info("[use_cuda] {}".format(use_cuda))
     device = torch.device('cuda' if use_cuda else 'cpu')
     model = model.to(device)
 
     model.eval()
     with torch.no_grad(), open(args.result_file, 'w') as fout:
+        start_time = time.time() * 1000
+        count = 0
         for batch_idx, batch in enumerate(test_data_loader):
             keys, feats, target, feats_lengths, target_lengths = batch
             feats = feats.to(device)
@@ -186,5 +192,10 @@ if __name__ == '__main__':
                     if w == eos:
                         break
                     content += char_dict[w]
-                logging.info('{} {}'.format(key, content))
+                # logging.info('{} {}'.format(key, content))
                 fout.write('{} {}\n'.format(key, content))
+            count += 1
+
+        end_time = time.time() * 1000
+        use_time = end_time - start_time
+        logging.warning('total: {} min, avg: {} ms'.format(use_time/1000/60, use_time/count))

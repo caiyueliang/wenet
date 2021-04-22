@@ -43,7 +43,7 @@ checkpoint=
 # use average_checkpoint will get better result
 average_checkpoint=true
 decode_checkpoint=${dir}/final.pt
-average_num=30
+average_num=10
 decode_modes="ctc_greedy_search ctc_prefix_beam_search attention attention_rescoring"
 
 . tools/parse_options.sh || exit 1;
@@ -194,6 +194,7 @@ if [ ${stage} -le 5 ] && [ ${stop_stage} -ge 5 ]; then
     {
         test_dir=${dir}/test_${mode}
         mkdir -p ${test_dir}
+        model_name=${decode_checkpoint##*/}
         gpu_id=$(echo ${CUDA_VISIBLE_DEVICES} | cut -d',' -f$[1])
         echo "[test] mode: ${mode}, use gpu_id: ${gpu_id}"
         # python wenet/bin/recognize.py --gpu ${gpu_id} \
@@ -207,14 +208,13 @@ if [ ${stage} -le 5 ] && [ ${stop_stage} -ge 5 ]; then
             --penalty 0.0 \
             --dict ${dict} \
             --ctc_weight ${ctc_weight} \
-            --result_file ${test_dir}/text \
+            --result_file ${test_dir}/text_${model_name} \
             ${decoding_chunk_size:+--decoding_chunk_size $decoding_chunk_size}
          python tools/compute-wer.py --char=1 --v=1 \
-            ${feat_dir}/test/text ${test_dir}/text > ${test_dir}/wer
+            ${feat_dir}/test/text ${test_dir}/text_${model_name} > ${test_dir}/wer_${model_name}
     } &
     done
     wait
-
 fi
 
 if [ ${stage} -le 6 ] && [ ${stop_stage} -ge 6 ]; then

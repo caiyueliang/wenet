@@ -97,8 +97,7 @@ class MultiHeadedAttention(nn.Module):
 
         return self.linear_out(x)  # (batch, time1, d_model)
 
-    def forward(self, query: torch.Tensor, key: torch.Tensor,
-                value: torch.Tensor,
+    def forward(self, query: torch.Tensor, key: torch.Tensor, value: torch.Tensor,
                 mask: Optional[torch.Tensor]) -> torch.Tensor:
         """Compute scaled dot product attention.
 

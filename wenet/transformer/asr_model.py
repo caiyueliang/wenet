@@ -195,23 +195,20 @@ class ASRModel(torch.nn.Module):
         # 1. Encoder
         encoder_out, encoder_mask = self._forward_encoder(
             speech, speech_lengths, decoding_chunk_size,
-            num_decoding_left_chunks,
-            simulate_streaming)  # (B, maxlen, encoder_dim)
+            num_decoding_left_chunks, simulate_streaming)           # (B, maxlen, encoder_dim)
         maxlen = encoder_out.size(1)
         encoder_dim = encoder_out.size(2)
         running_size = batch_size * beam_size
         encoder_out = encoder_out.unsqueeze(1).repeat(1, beam_size, 1, 1).view(
-            running_size, maxlen, encoder_dim)  # (B*N, maxlen, encoder_dim)
+            running_size, maxlen, encoder_dim)                      # (B*N, maxlen, encoder_dim)
         encoder_mask = encoder_mask.unsqueeze(1).repeat(
-            1, beam_size, 1, 1).view(running_size, 1,
-                                     maxlen)  # (B*N, 1, max_len)
+            1, beam_size, 1, 1).view(running_size, 1, maxlen)       # (B*N, 1, max_len)
 
         hyps = torch.ones([running_size, 1], dtype=torch.long,
-                          device=device).fill_(self.sos)  # (B*N, 1)
+                          device=device).fill_(self.sos)            # (B*N, 1)
         scores = torch.tensor([0.0] + [-float('inf')] * (beam_size - 1),
                               dtype=torch.float)
-        scores = scores.to(device).repeat([batch_size]).unsqueeze(1).to(
-            device)  # (B*N, 1)
+        scores = scores.to(device).repeat([batch_size]).unsqueeze(1).to(device)  # (B*N, 1)
         end_flag = torch.zeros_like(scores, dtype=torch.bool, device=device)
         cache: Optional[List[torch.Tensor]] = None
         # 2. Decoder forward step by step

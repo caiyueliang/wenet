@@ -113,7 +113,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${TORCH_CXX_FLAGS} -DC10_USE_GLOG")
 
 # utils
 add_library(utils STATIC utils/utils.cc)
-target_link_libraries(utils PUBLIC fst)
+target_link_libraries(utils PUBLIC fst dl)
 add_dependencies(utils openfst)
 
 # frontend

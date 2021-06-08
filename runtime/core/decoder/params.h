@@ -18,7 +18,8 @@ DEFINE_string(model_path, "", "pytorch exported model path");
 
 // FeaturePipelineConfig flags
 DEFINE_int32(num_bins, 80, "num mel bins for fbank feature");
-DEFINE_int32(sample_rate, 16000, "sample rate for audio");
+// DEFINE_int32(sample_rate, 16000, "sample rate for audio");
+DEFINE_int32(sample_rate, 8000, "sample rate for audio");
 
 // TLG fst
 DEFINE_string(fst_path, "", "TLG fst path");

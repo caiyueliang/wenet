@@ -65,15 +65,20 @@ void WebSocketClient::ReadLoopFunc() {
       beast::flat_buffer buffer;
       ws_.read(buffer);
       std::string message = beast::buffers_to_string(buffer.data());
-      LOG(INFO) << message;
+      // LOG(INFO) << message;
       CHECK(ws_.got_text());
       json::object obj = json::parse(message).as_object();
+
       if (obj["status"] != "ok") {
         break;
       }
       if (obj["type"] == "speech_end") {
         done_ = true;
         break;
+      }
+      if (obj["type"] == "final_result") {
+        LOG(WARNING) << "[final_result] " << obj["nbest"];
+        std::cout << "[final_result] " << obj["nbest"] << std::endl;
       }
     }
   } catch (beast::system_error const& se) {

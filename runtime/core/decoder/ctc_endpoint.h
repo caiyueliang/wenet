@@ -38,7 +38,7 @@ struct CtcEndpointConfig {
   CtcEndpointRule rule3;
 
   CtcEndpointConfig()
-      : rule1(false, 5000, 0), rule2(true, 1000, 0), rule3(false, 0, 20000) {}
+      : rule1(false, 1000, 0), rule2(true, 1000, 0), rule3(false, 0, 120000) {}
 };
 
 class CtcEndpoint {

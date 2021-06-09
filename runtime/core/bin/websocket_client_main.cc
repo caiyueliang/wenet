@@ -33,15 +33,20 @@ int main(int argc, char *argv[]) {
   client.SendStartSignal();
 
   wenet::WavReader wav_reader(FLAGS_wav_path);
-  const int sample_rate = 16000;
+  // const int sample_rate = 16000;
+  const int sample_rate = 8000;
+  VLOG(2) << "[CYL] sample_rate: " << sample_rate;
   // Only support 16K
   CHECK_EQ(wav_reader.sample_rate(), sample_rate);
   const int num_sample = wav_reader.num_sample();
+  VLOG(2) << "[CYL] num_sample: " << num_sample;
   std::vector<float> pcm_data(wav_reader.data(),
                               wav_reader.data() + num_sample);
   // Send data every 0.5 second
   const float interval = 0.5;
   const int sample_interval = interval * sample_rate;
+  VLOG(2) << "[CYL] sample_interval: " << sample_interval;
+  wenet::Timer timer_1;
   for (int start = 0; start < num_sample; start += sample_interval) {
     if (client.done()) {
       break;
@@ -64,5 +69,6 @@ int main(int argc, char *argv[]) {
   client.SendEndSignal();
   client.Join();
   VLOG(2) << "Total latency: " << timer.Elapsed() << "ms.";
+  VLOG(2) << "Total use: " << timer_1.Elapsed() << "ms.";
   return 0;
 }

@@ -1,0 +1,22 @@
+server:
+    dict_path: "./models/model_5.35/lang_char.txt"
+    model_path: "./models/model_5.35/67.pt"
+    train_yaml: "./models/model_5.35/train.yaml"
+    gpu: -1                         # gpu id for this rank, -1 for cpu
+
+recognize:
+    mode: "attention_rescoring"     # attention, ctc_greedy_search, ctc_prefix_beam_search, attention_rescoring
+    decoding_chunk_size: -1
+    num_decoding_left_chunks: -1
+    ctc_weight: 0.5
+    beam_size: 3
+    simulate_streaming: false
+
+## feature extraction
+collate_conf:
+    feature_extraction_conf:
+        feature_type: 'fbank'
+        mel_bins: 80
+        frame_shift: 10
+        frame_length: 25
+        using_pitch: false

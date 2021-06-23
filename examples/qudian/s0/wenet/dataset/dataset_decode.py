@@ -224,6 +224,7 @@ def _extract_feature(batch, wav_distortion_conf,
     order = np.argsort(lengths)[::-1]
     sorted_keys = [keys[i] for i in order]
     sorted_feats = [feats[i] for i in order]
+
     # labels = [x[2].split() for x in batch]
     # labels = [np.fromiter(map(int, x), dtype=np.int32) for x in labels]
     # sorted_labels = [labels[i] for i in order]

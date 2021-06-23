@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+package wenet_package;
+
+service WenetService {
+    rpc Recognize (Request) returns (Response) {}
+}
+
+// define the data type of Request
+message Request {
+    string oss = 1;
+}
+
+// define the data type of Response
+message Response {
+    string message = 1;
+}

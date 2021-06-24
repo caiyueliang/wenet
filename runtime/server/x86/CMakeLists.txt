@@ -53,6 +53,10 @@ FetchContent_Declare(boost
 FetchContent_MakeAvailable(boost)
 include_directories(${boost_SOURCE_DIR})
 
+MESSAGE("[CMAKE_SOURCE_DIR] = ${CMAKE_SOURCE_DIR}")
+MESSAGE("[boost_BINARY_DIR] = ${boost_BINARY_DIR}")
+MESSAGE("[boost_SOURCE_DIR] = ${boost_SOURCE_DIR}")
+
 # third_party: openfst
 # openfst is compiled with glog/gflags to avoid log and flag conflicts with log and flags in wenet/libtorch
 set(OPENFST_EXTRA_INCLUDE_DIR "-I${glog_SOURCE_DIR}/src -I${glog_BINARY_DIR} -I${gflags_BINARY_DIR}/include")
@@ -77,6 +81,9 @@ ExternalProject_Add(openfst
 include_directories(${openfst_PREFIX_DIR}/include)
 link_directories(${openfst_PREFIX_DIR}/lib)
 add_dependencies(openfst gflags glog)
+
+MESSAGE("[openfst_BINARY_DIR] = ${openfst_BINARY_DIR}")
+MESSAGE("[openfst_SOURCE_DIR] = ${openfst_SOURCE_DIR}")
 
 # third_party: libtorch 1.6.0, use FetchContent_Declare to download, and
 # use find_package to find since libtorch is not a standard cmake project
@@ -169,6 +176,12 @@ if(GRPC)
 
   # compile wenet.proto
   set(PROTO_DIR "${CMAKE_SOURCE_DIR}/grpc")
+
+  MESSAGE("[CMAKE_SOURCE_DIR] = ${CMAKE_SOURCE_DIR}")
+  MESSAGE("[PROTO_DIR] = ${PROTO_DIR}")
+  MESSAGE("[protobuf_BINARY_DIR] = ${protobuf_BINARY_DIR}")
+  MESSAGE("[grpc_BINARY_DIR] = ${protobuf_BINARY_DIR}")
+
   add_custom_command(
     OUTPUT ${PROTO_DIR}/wenet.pb.cc
            ${PROTO_DIR}/wenet.pb.h
@@ -196,4 +209,3 @@ if(GRPC)
   add_executable(grpc_client_main bin/grpc_client_main.cc)
   target_link_libraries(grpc_client_main PUBLIC wenet_grpc)
 endif(GRPC)
-

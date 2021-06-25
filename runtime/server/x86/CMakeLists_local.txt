@@ -179,7 +179,9 @@ if(GRPC)
 
   MESSAGE("[CMAKE_SOURCE_DIR] = ${CMAKE_SOURCE_DIR}")
   MESSAGE("[PROTO_DIR] = ${PROTO_DIR}")
+  MESSAGE("[protobuf_SOURCE_DIR] = ${protobuf_SOURCE_DIR}")
   MESSAGE("[protobuf_BINARY_DIR] = ${protobuf_BINARY_DIR}")
+  MESSAGE("[grpc_SOURCE_DIR] = ${grpc_SOURCE_DIR}")
   MESSAGE("[grpc_BINARY_DIR] = ${grpc_BINARY_DIR}")
 
   add_custom_command(

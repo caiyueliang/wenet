@@ -40,3 +40,6 @@ tensorboard
 examples/qudian/s0/result/
 examples/qudian/s0/bad_case/
 examples/qudian/s1_cyl/bad_case/
+
+dist/
+grpc_client.egg-info/

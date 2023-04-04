@@ -1,0 +1,22 @@
+# FROM nvcr.io/nvidia/tritonserver:23.01-py3
+FROM nvcr.io/nvidia/tritonserver:22.12-py3
+LABEL maintainer="NVIDIA"
+LABEL repository="tritonserver"
+
+RUN apt-key del 7fa2af80 && \
+    apt-key adv --fetch-keys https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/3bf863cc.pub && \
+    apt-key adv --fetch-keys https://developer.download.nvidia.com/compute/machine-learning/repos/ubuntu2004/x86_64/7fa2af80.pub
+RUN apt-get update
+RUN apt-get -y install swig && apt-get -y install python3-dev && apt-get install -y cmake
+RUN pip3 install torch==1.13.0 torchaudio==0.13.0 -i https://pypi.tuna.tsinghua.edu.cn/simple
+RUN pip3 install -v kaldifeat pyyaml onnx -i https://pypi.tuna.tsinghua.edu.cn/simple
+
+WORKDIR /workspace
+RUN git clone https://github.com/Slyne/ctc_decoder.git && cd ctc_decoder/swig && bash setup.sh
+
+
+COPY ./scripts scripts
+COPY ./model_repo_stateful /ws/model_repo
+
+# CMD ["tritonserver", "--grpc-port=8080", "--model-repository=/models"]
+CMD ["bash", "/workspace/scripts/convert_start_server_cyl.sh"]

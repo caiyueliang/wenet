@@ -12,7 +12,8 @@ RUN pip3 install torch==1.13.0 torchaudio==0.13.0 -i https://pypi.tuna.tsinghua.
 RUN pip3 install -v kaldifeat pyyaml onnx -i https://pypi.tuna.tsinghua.edu.cn/simple
 
 WORKDIR /workspace
-RUN git clone https://github.com/Slyne/ctc_decoder.git && cd ctc_decoder/swig && bash setup.sh
+RUN git clone https://github.com/Slyne/ctc_decoder.git
+RUN cd ctc_decoder/swig && bash setup.sh
 
 
 COPY ./scripts scripts

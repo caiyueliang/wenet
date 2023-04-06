@@ -150,7 +150,8 @@ if __name__ == "__main__":
             transcripts.append(value["text"])
 
     print("[filenames] {}, [path] {}".format(filenames, path))
-    num_workers = multiprocessing.cpu_count() // 2
+    # num_workers = multiprocessing.cpu_count() // 2
+    num_workers = 1
 
     if FLAGS.streaming:
         speech_client_cls = StreamingSpeechClient
@@ -158,6 +159,7 @@ if __name__ == "__main__":
         speech_client_cls = OfflineSpeechClient
 
     def single_job(client_files):
+        print("[single_job] client_files: {}".format(client_files))
         with grpcclient.InferenceServerClient(url=FLAGS.url, verbose=FLAGS.verbose) as triton_client:
             protocol_client = grpcclient
             speech_client = speech_client_cls(

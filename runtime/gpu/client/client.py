@@ -122,6 +122,7 @@ if __name__ == "__main__":
     )
 
     FLAGS = parser.parse_args()
+    print("[FLAGS] {}".format(FLAGS))
 
     # load data
     filenames = []
@@ -148,6 +149,7 @@ if __name__ == "__main__":
             filenames.append(value["path"])
             transcripts.append(value["text"])
 
+    print("[filenames] {}, [path] {}".format(filenames, path))
     num_workers = multiprocessing.cpu_count() // 2
 
     if FLAGS.streaming:
@@ -156,9 +158,7 @@ if __name__ == "__main__":
         speech_client_cls = OfflineSpeechClient
 
     def single_job(client_files):
-        with grpcclient.InferenceServerClient(
-            url=FLAGS.url, verbose=FLAGS.verbose
-        ) as triton_client:
+        with grpcclient.InferenceServerClient(url=FLAGS.url, verbose=FLAGS.verbose) as triton_client:
             protocol_client = grpcclient
             speech_client = speech_client_cls(
                 triton_client, FLAGS.model_name, protocol_client, FLAGS
@@ -181,6 +181,7 @@ if __name__ == "__main__":
         cur_files = per_split.tolist()
         tasks.append((idx, cur_files))
 
+    print("[tasks] {}".format(tasks))
     with Pool(processes=num_workers) as pool:
         predictions = pool.map(single_job, tasks)
 

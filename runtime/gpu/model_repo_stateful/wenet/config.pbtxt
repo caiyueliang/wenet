@@ -121,6 +121,6 @@ output [
 instance_group [
     {
       count: 2
-      # kind: KIND_CPU
+      kind: KIND_CPU
     }
 ]
